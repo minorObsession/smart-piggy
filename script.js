@@ -757,13 +757,8 @@ function init() {
 
   console.log(accounts);
   console.log(currentAccount);
-  console.log("this is the alternative branch!! ");
-  console.log("one more alt-branch thing");
-  inputUsername.focus();
-}
 
-function newStuff() {
-  console.log("aaaaaaaaaaa");
+  inputUsername.focus();
 }
 
 init();
