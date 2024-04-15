@@ -63,6 +63,10 @@ const currentDateTimeCryptoEl = document.querySelector(
 );
 const formTradeCrypto = document.querySelector(".buy_sell_div");
 
+const cryptoMessageDiv = document.querySelector(".crypto_message_div");
+const cryptoMessage = document.querySelector(".crypto_message");
+const cryptoMessageText = document.querySelector(".crypto_message_text");
+
 //
 //
 
@@ -149,6 +153,7 @@ async function calcDisplayCrypto(account) {
 }
 
 async function tradeCrypto(e) {
+  console.log("starting...");
   e.preventDefault();
   const prices = await getCryptoPrices();
   const buyOrSell = document.querySelector(".buy_sell").value;
@@ -198,11 +203,23 @@ async function tradeCrypto(e) {
   // clearInputFields(cryptoTradeQt);
   // ! updateUI method to be created
   // overwriting the existing "accounts" in localStorage
-  renderTransactions(currentAccount);
-  calcDisplayBalanceAndDates();
 
-  // stop listening
-  formTradeCrypto.removeEventListener("submit", tradeCrypto);
+  console.log(currentAccount);
+
+  // ? spinner
+  prepareAndRenderSpinner(cryptoMessageDiv, "other");
+  setTimeout(() => {
+    removeSpinner(cryptoMessageDiv);
+    cryptoMessageText.textContent = `Success! Thank you for trading`;
+    cryptoMessageText.classList.remove("hidden");
+    renderTransactions(currentAccount);
+    calcDisplayCrypto(currentAccount);
+    setTimeout(() => {
+      toggleDominateClass(cryptoMessageDiv);
+      calcDisplayBalanceAndDates();
+      clearInputFields();
+    }, 5000);
+  }, 2000);
 }
 
 // function tradeCrypto
@@ -241,9 +258,7 @@ function prepareAndRenderSpinner(htmlEl, mainOrServices = "main") {
   if (mainOrServices === "main") {
     mainContainer.style.opacity = 0.2;
   }
-  if (mainOrServices === "services") {
-    // servicesMessageDiv.style.opacity = 0.5;
-  }
+
   htmlEl.classList.remove("hidden");
   htmlEl.classList.add("dominate");
   renderSpinner(htmlEl);
@@ -449,15 +464,30 @@ function renderTransactions(account) {
         : `${new Intl.NumberFormat("de-DE", options).format(mov)}`;
 
     const type = mov > 0 ? "deposit" : "withdrawal";
-
     const html = `
     <div class="transaction ${type}">
       <div class="transaction_type">
-        <img
-        src="img/${type}.svg"
-        viewBox="0 0 256 256"
-        class="icon icon_${type} "
-        ></img>
+      ${
+        type === "deposit"
+          ? `
+          <svg
+            class="icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 256 256"
+          >
+            <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm37.66-101.66a8,8,0,0,1-11.32,11.32L136,107.31V168a8,8,0,0,1-16,0V107.31l-18.34,18.35a8,8,0,0,1-11.32-11.32l32-32a8,8,0,0,1,11.32,0Z"></path>
+          </svg>
+        `
+          : `
+          <svg class="icon"
+            xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 256 256"
+          >
+            <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm37.66-85.66a8,8,0,0,1,0,11.32l-32,32a8,8,0,0,1-11.32,0l-32-32a8,8,0,0,1,11.32-11.32L120,148.69V88a8,8,0,0,1,16,0v60.69l18.34-18.35A8,8,0,0,1,165.66,130.34Z"></path>
+          </svg>
+        `
+      }
+ 
       </div>
       <div class="transaction_date">${dateToDisplay}</div>
       <div class="transaction_amount">${formattedMov}</div>
@@ -748,8 +778,9 @@ function init() {
   accounts = JSON.parse(localStorage.getItem("accounts")) || accounts;
 
   // // ! fake logged in
-  // currentAccount = accounts[0];
-  // openOverlay(financialContainer, transactionsDiv);
+  // currentAccount = accounts[1];
+  // openOverlay(financialContainer, cryptoDiv);
+  // cryptoDiv.classList.remove("visible");
   // // ! always call renderT and THEN calcDis !!!!
   // renderTransactions(currentAccount);
   // calcDisplayBalanceAndDates(currentAccount);
