@@ -302,6 +302,7 @@ select {
 .input_crypto_checkbox {
   cursor: pointer;
   width: 1.2rem;
+  accent-color: var(--primary-color);
   /* height: 2rem; */
 }
 
